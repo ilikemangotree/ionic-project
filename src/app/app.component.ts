@@ -1,3 +1,4 @@
+import { PassportServiceService } from './shared/services/passport-service.service';
 import { LocalStorageService } from './shared/services/local-storage.service';
 import { Component } from '@angular/core';
 
@@ -20,19 +21,18 @@ export class AppComponent {
     { title: '帮助中心', url: '/home', icon: 'help-circle' },
   ];
 
-  public account = {
-    email: '',
-    phone: ''
-  }
+  shop: any;
 
   constructor(
     private platform: Platform,
     private splashScreen: SplashScreen,
     private statusBar: StatusBar,
-    private localStorageService: LocalStorageService
+    private localStorageService: LocalStorageService,
+    private passportServiceService: PassportServiceService
   ) {
     this.initializeApp();
-    this.account.email = this.localStorageService.get('loginaccount', '')
+    const id = this.localStorageService.get('LoginLog', '').identifier;
+    this.shop = this.passportServiceService.getshop(id);
   }
 
   initializeApp() {
@@ -41,4 +41,5 @@ export class AppComponent {
       this.splashScreen.hide();
     });
   }
+
 }

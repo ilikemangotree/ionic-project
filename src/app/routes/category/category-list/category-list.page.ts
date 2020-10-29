@@ -1,8 +1,9 @@
-import { Router } from '@angular/router';
+import { CategoryServiceService } from './../../../shared/services/category-service.service';
+import { Category } from './../../../shared/class/category';
 import { ActionSheetController, Events } from '@ionic/angular';
-import { Category } from './../../shared/class/category';
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
-import { CategoryListService } from './category-list.service';
+import { Router } from '@angular/router';
+
 
 
 @Component({
@@ -18,10 +19,10 @@ export class CategoryListPage implements OnInit {
   activeSubCategories: Category[];
   activeSubCategory: Category;
   constructor(
-    private categoryService: CategoryListService,
+    private categoryService: CategoryServiceService,
     private actionSheetCtrl: ActionSheetController,
-    private router: Router,
-    private events: Events
+    private events: Events,
+    private router: Router
     ) {
     categoryService.getAll().then((data) => {
       this.categories = data.result;
@@ -36,28 +37,30 @@ export class CategoryListPage implements OnInit {
   }
   async onPresentActionSheet() {
     const actionSheet = await this.actionSheetCtrl.create({
-        header: '选择您的操作',
-        buttons: [
-          {
-            text: '新增小分类',
-            role: 'destructive',
-            handler: () => {
-              console.log('Destructive clicked');
-            }
-          }, {
-            text: '编辑分类',
-            handler: () => {
-              console.log('Archive clicked');
-            }
-          }, {
-            text: '取消',
-            role: 'cancel',
-            handler: () => {
-              console.log('Cancel clicked');
-            }
+      header: '选择您的操作',
+      buttons: [
+        {
+          text: '新增小分类',
+          role: 'destructive',
+          handler: () => {
+            // this.navCtrl.navigateForward(['/addCategory', {title: this.activeCategory.name}]);
+            this.router.navigate(['/Category/add'], {queryParams: {'title': this.activeCategory.name}});
           }
-        ]
-      });
+        }, {
+          text: '编辑分类',
+          handler: () => {
+            // this.navCtrl.navigateForward(['/editCategory', this.activeCategory.id]);
+            this.router.navigate(['/Category/edit', this.activeCategory.id]);
+          }
+        }, {
+          text: '取消',
+          role: 'cancel',
+          handler: () => {
+            console.log('Cancel clicked');
+          }
+        }
+      ]
+    });
     await actionSheet.present();
   }
   getItemColor(id: number): string {
@@ -67,13 +70,17 @@ export class CategoryListPage implements OnInit {
       return 'light';
     }
   }
-  selectCategory(category: Category) {
+  selectCategory(category: Category) { // 获得当前选择的目录以及其子目录
     this.activeCategory = category;
     this.activeSubCategories = this.activeCategory.children;
   }
+  /**
+   * 发布自定义消息，返回上一页面
+   * @param {Category} category
+   */
   onSelect(category: Category) {
     this.events.publish('category: selected', category, Date.now());
-    // this.router.navigateByUrl('/addProduct');
+    // this.router.navigateByUrl('/addPoduct');
     // this.location.back();
   }
 
